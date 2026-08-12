@@ -6,7 +6,7 @@ from typing import Dict, Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Group Chat Server")
+app = FastAPI(title="NexChat Server")
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,11 +15,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ─────────────────────────────────────────────
 #  In-memory state
 #  clients: session_token → {websocket, username}
-# ─────────────────────────────────────────────
 clients: Dict[str, dict] = {}
 known_sessions: Dict[str, float] = {}
 message_history: list = []
@@ -29,11 +26,7 @@ MAX_HISTORY = 100
 def utc_now() -> str:
     """Return current UTC time as an ISO 8601 string."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-# ─────────────────────────────────────────────
 #  Helpers
-# ─────────────────────────────────────────────
 
 async def _send(ws: WebSocket, payload: dict):
     """Fire-and-forget send to a single socket."""
@@ -76,11 +69,7 @@ def add_to_history(event: dict):
 def _clear_room():
     message_history.clear()
     print("[i] Room empty — history cleared")
-
-
-# ─────────────────────────────────────────────
 #  WebSocket endpoint
-# ─────────────────────────────────────────────
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -90,7 +79,6 @@ async def websocket_endpoint(websocket: WebSocket):
     username: Optional[str] = None
 
     try:
-        # ── 1. Receive join handshake ──────────────────────────────
         raw = await websocket.receive_text()
         data = json.loads(raw)
 
@@ -104,8 +92,6 @@ async def websocket_endpoint(websocket: WebSocket):
         if not session_token or not username:
             await websocket.close(code=1008)
             return
-
-        # ── 2. Deduplicate same-browser tabs ───────────────────────
         #   If this session_token already has an active connection
         #   (another tab), close the old one silently and take over.
         if session_token in clients:
@@ -118,8 +104,6 @@ async def websocket_endpoint(websocket: WebSocket):
                 await old_ws.close(code=4000)
             except Exception:
                 pass
-
-        # ── 3. Check if this is a reconnect ────────────────────────
         import time
         is_reconnect = False
         last_active = known_sessions.get(session_token, 0)
@@ -129,12 +113,8 @@ async def websocket_endpoint(websocket: WebSocket):
         
         # Reset the timer
         known_sessions[session_token] = time.time()
-
-        # ── 4. Register client ─────────────────────────────────────
         clients[session_token] = {"websocket": websocket, "username": username}
         print(f"[+] {username} connected  (token …{session_token[-8:]})")
-
-        # ── 5. Confirm join ────────────────────────────────────────
         await _send(websocket, {"type": "joined", "username": username})
 
         # Send history ONLY if they are reconnecting or replacing a tab
@@ -153,8 +133,6 @@ async def websocket_endpoint(websocket: WebSocket):
 
         # Push fresh user list to all
         await push_user_list()
-
-        # ── 5. Message loop ────────────────────────────────────────
         async for raw_msg in websocket.iter_text():
             data = json.loads(raw_msg)
             msg_type = data.get("type")
@@ -196,7 +174,6 @@ async def websocket_endpoint(websocket: WebSocket):
         print(f"[!] Unexpected error: {exc}")
 
     finally:
-        # ── 6. Clean up on disconnect ──────────────────────────────
         #   Only remove + notify if this websocket is still the active
         #   one for its session (not already replaced by another tab).
         if (

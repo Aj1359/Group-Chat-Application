@@ -1,11 +1,9 @@
-// ─────────────────────────────────────────────────────────
 //  useSession — localStorage-based session management
 //
 //  Keys used:
 //    chat_session_token  → permanent UUID per browser (never cleared)
 //    chat_username       → username string (cleared on leave / timeout)
 //    chat_joined_at      → unix-ms timestamp  (cleared on leave / timeout)
-// ─────────────────────────────────────────────────────────
 
 const SESSION_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 

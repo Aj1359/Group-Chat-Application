@@ -32,8 +32,6 @@ export function useWebSocket(username, { onMessage, onJoined, onReplaced, onDisc
   useEffect(() => {
     cbRef.current = { onMessage, onJoined, onReplaced, onDisconnected };
   });
-
-  // ── Open connection when username is provided ──────────────────
   useEffect(() => {
     if (!username) return;
 
@@ -88,15 +86,11 @@ export function useWebSocket(username, { onMessage, onJoined, onReplaced, onDisc
       ws.close();
     };
   }, [username]);
-
-  // ── Send a chat message ────────────────────────────────────────
   const sendMessage = useCallback((text) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: 'message', message: text }));
     }
   }, []);
-
-  // ── Explicit leave (clears session, closes socket) ─────────────
   const leaveChat = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({ type: 'leave' }));

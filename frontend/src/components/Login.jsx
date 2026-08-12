@@ -57,7 +57,7 @@ export default function Login({ onJoin, theme, onToggleTheme }) {
           {error && <p className="login-error">{error}</p>}
 
           <button id="join-btn" className="btn btn--primary btn--full" type="submit">
-            Join Chat
+            Welcome to NexChat
           </button>
         </form>
 

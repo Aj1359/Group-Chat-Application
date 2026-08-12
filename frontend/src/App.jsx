@@ -13,8 +13,6 @@ const VIEW = {
 export default function App() {
   const [view, setView] = useState(VIEW.LOADING);
   const [username, setUsername] = useState(null);
-
-  // ── Theme ─────────────────────────────────────────────────────────
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('chat_theme') || 'dark';
   });
@@ -28,8 +26,6 @@ export default function App() {
   function toggleTheme() {
     setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
   }
-
-  // ── On mount: check for a valid saved session ─────────────────────
   useEffect(() => {
     const saved = getSavedSession();
     if (saved) {
@@ -39,15 +35,11 @@ export default function App() {
       setView(VIEW.LOGIN);
     }
   }, []);
-
-  // ── User submits login form ───────────────────────────────────────
   function handleJoin(name) {
     saveSession(name);
     setUsername(name);
     setView(VIEW.CHAT);
   }
-
-  // ── User clicks Leave ─────────────────────────────────────────────
   function handleLeave() {
     clearSession();
     setUsername(null);

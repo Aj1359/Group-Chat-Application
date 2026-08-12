@@ -12,8 +12,6 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
   const [isReplaced, setIsReplaced] = useState(false);
 
   const messagesEndRef = useRef(null);
-
-  // ── Incoming message handler ───────────────────────────────────
   const handleMessage = useCallback((data) => {
     if (data.type === 'message' || data.type === 'system') {
       setMessages((prev) => [...prev, data]);
@@ -37,19 +35,13 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
       ]);
     },
   });
-
-  // ── Auto-scroll ────────────────────────────────────────────────
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // ── Keep session alive while chatting ─────────────────────────
   useEffect(() => {
     const interval = setInterval(refreshSession, 60000); // refresh every minute
     return () => clearInterval(interval);
   }, []);
-
-  // ── Send ───────────────────────────────────────────────────────
   function handleSend() {
     const text = inputVal.trim();
     if (!text || status !== WS_STATUS.CONNECTED) return;
@@ -63,14 +55,10 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
       handleSend();
     }
   }
-
-  // ── Explicit leave ─────────────────────────────────────────────
   function handleLeave() {
     leaveChat();
     onLeave();
   }
-
-  // ── Replaced screen ───────────────────────────────────────────
   if (isReplaced) {
     return (
       <div className="replaced-screen">
@@ -100,7 +88,7 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
         {/* Header */}
         <header className="chat-header">
           <div className="chat-header__left">
-            <h2 className="chat-header__title">Common Chat Room</h2>
+            <h2 className="chat-header__title">NexChat</h2>
             <span className={`status-badge ${isConnected ? 'status-badge--connected' : 'status-badge--disconnected'}`}>
               {isConnected ? '● Connected' : '● Disconnected'}
             </span>
