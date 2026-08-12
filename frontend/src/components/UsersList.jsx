@@ -2,8 +2,8 @@ export default function UsersList({ users, count }) {
   return (
     <aside className="users-panel">
       <div className="users-panel__header">
-        <span className="brand-icon">💬</span>
-        <h2 className="brand-title">Group Chat</h2>
+        <img src="/logo.png" alt="Logo" className="brand-icon" style={{ width: '32px', height: '32px', objectFit: 'contain' }} />
+        <h2 className="brand-title">NexChat</h2>
       </div>
 
       <div className="online-badge">

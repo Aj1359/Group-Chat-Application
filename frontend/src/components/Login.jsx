@@ -34,8 +34,8 @@ export default function Login({ onJoin, theme, onToggleTheme }) {
       </button>
 
       <div className="login-card">
-        <div className="login-icon">💬</div>
-        <h1 className="login-title">Group Chat</h1>
+        <img src="/logo.png" alt="NexChat Logo" className="login-logo" />
+        <h1 className="login-title">Welcome to NexChat</h1>
         <p className="login-subtitle">Real-time messaging, instantly.</p>
 
         <form className="login-form" onSubmit={handleSubmit} noValidate>
@@ -57,7 +57,7 @@ export default function Login({ onJoin, theme, onToggleTheme }) {
           {error && <p className="login-error">{error}</p>}
 
           <button id="join-btn" className="btn btn--primary btn--full" type="submit">
-            Welcome to NexChat
+            Join Chat
           </button>
         </form>
 
