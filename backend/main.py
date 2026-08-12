@@ -21,6 +21,7 @@ app.add_middleware(
 #  clients: session_token → {websocket, username}
 # ─────────────────────────────────────────────
 clients: Dict[str, dict] = {}
+known_sessions: Dict[str, float] = {}
 message_history: list = []
 MAX_HISTORY = 100
 
@@ -118,21 +119,37 @@ async def websocket_endpoint(websocket: WebSocket):
             except Exception:
                 pass
 
-        # ── 3. Register client ─────────────────────────────────────
+        # ── 3. Check if this is a reconnect ────────────────────────
+        import time
+        is_reconnect = False
+        last_active = known_sessions.get(session_token, 0)
+        # If the session was active in the last 5 minutes (300 seconds)
+        if time.time() - last_active < 300:
+            is_reconnect = True
+        
+        # Reset the timer
+        known_sessions[session_token] = time.time()
+
+        # ── 4. Register client ─────────────────────────────────────
         clients[session_token] = {"websocket": websocket, "username": username}
         print(f"[+] {username} connected  (token …{session_token[-8:]})")
 
-        # ── 4. Confirm join — NO history sent (Requirement 1) ──────
+        # ── 5. Confirm join ────────────────────────────────────────
         await _send(websocket, {"type": "joined", "username": username})
 
-        # Broadcast join event to everyone else
-        join_event = {
-            "type": "system",
-            "message": f"{username} joined the chat",
-            "timestamp": utc_now(),
-        }
-        add_to_history(join_event)
-        await broadcast(join_event, exclude_token=session_token)
+        # Send history ONLY if they are reconnecting or replacing a tab
+        if is_reconnect:
+            for msg in message_history:
+                await _send(websocket, msg)
+        else:
+            # Only broadcast join event if they are genuinely new
+            join_event = {
+                "type": "system",
+                "message": f"{username} joined the chat",
+                "timestamp": utc_now(),
+            }
+            add_to_history(join_event)
+            await broadcast(join_event, exclude_token=session_token)
 
         # Push fresh user list to all
         await push_user_list()
@@ -153,9 +170,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 await broadcast_all(chat_msg)
 
             elif msg_type == "leave":
-                # Explicit leave — remove immediately
+                # Explicit leave — remove completely so they can't bypass login
                 if session_token in clients and clients[session_token]["websocket"] is websocket:
                     del clients[session_token]
+                if session_token in known_sessions:
+                    del known_sessions[session_token]
 
                 leave_event = {
                     "type": "system",
@@ -186,6 +205,11 @@ async def websocket_endpoint(websocket: WebSocket):
             and clients[session_token]["websocket"] is websocket
         ):
             del clients[session_token]
+            import time
+            if session_token not in known_sessions:
+                known_sessions[session_token] = time.time()
+            else:
+                known_sessions[session_token] = time.time()
             print(f"[-] {username} disconnected  (token …{session_token[-8:]})")
 
             disconnect_event = {

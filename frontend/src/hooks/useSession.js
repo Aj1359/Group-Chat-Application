@@ -44,6 +44,13 @@ export function saveSession(username) {
   localStorage.setItem('chat_joined_at', String(Date.now()));
 }
 
+// Keep the session alive while the user is actively chatting
+export function refreshSession() {
+  if (localStorage.getItem('chat_username')) {
+    localStorage.setItem('chat_joined_at', String(Date.now()));
+  }
+}
+
 // Remove username + timestamp (keeps session_token for dedup).
 export function clearSession() {
   localStorage.removeItem('chat_username');

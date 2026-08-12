@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useWebSocket, WS_STATUS } from '../hooks/useWebSocket';
 import UsersList from './UsersList';
 import Message from './Message';
+import { refreshSession } from '../hooks/useSession';
 
 export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
   const [messages, setMessages] = useState([]);
@@ -41,6 +42,12 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // ── Keep session alive while chatting ─────────────────────────
+  useEffect(() => {
+    const interval = setInterval(refreshSession, 60000); // refresh every minute
+    return () => clearInterval(interval);
+  }, []);
 
   // ── Send ───────────────────────────────────────────────────────
   function handleSend() {
