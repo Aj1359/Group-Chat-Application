@@ -11,8 +11,9 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
   const [inputVal, setInputVal] = useState('');
   const [isReplaced, setIsReplaced] = useState(false);
 
-  // States for mentions
+  // States for mentions & replies
   const [suggestions, setSuggestions] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(null);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mentionSearchStart, setMentionSearchStart] = useState(-1);
@@ -124,10 +125,11 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
   function handleSend() {
     const text = inputVal.trim();
     if (!text || status !== WS_STATUS.CONNECTED) return;
-    sendMessage(text);
+    sendMessage(text, replyingTo);
     setInputVal('');
     setShowSuggestions(false);
     setSuggestions([]);
+    setReplyingTo(null);
   }
 
   function handleKey(e) {
@@ -223,13 +225,28 @@ export default function ChatRoom({ username, onLeave, theme, onToggleTheme }) {
             </div>
           )}
           {messages.map((msg, i) => (
-            <Message key={i} msg={msg} currentUser={username} />
+            <Message key={i} msg={msg} currentUser={username} onReply={setReplyingTo} />
           ))}
           <div ref={messagesEndRef} />
         </section>
 
         {/* Input */}
         <div className="message-bar-container">
+          {replyingTo && (
+            <div className="reply-preview-bar">
+              <div className="reply-preview-bar__content">
+                <span className="reply-preview-bar__label">Replying to @{replyingTo.username}</span>
+                <span className="reply-preview-bar__text">{replyingTo.message}</span>
+              </div>
+              <button 
+                className="reply-preview-bar__close" 
+                onClick={() => setReplyingTo(null)}
+                aria-label="Cancel reply"
+              >
+                ✕
+              </button>
+            </div>
+          )}
           {showSuggestions && suggestions.length > 0 && (
             <ul className="mention-suggestions" role="listbox" aria-label="User suggestions">
               {suggestions.map((user, idx) => (

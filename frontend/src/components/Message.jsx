@@ -23,7 +23,7 @@ function renderMessageText(text, currentUser) {
   });
 }
 
-export default function Message({ msg, currentUser }) {
+export default function Message({ msg, currentUser, onReply }) {
   const time = formatTime(msg.timestamp);
 
   if (msg.type === 'system') {
@@ -43,10 +43,26 @@ export default function Message({ msg, currentUser }) {
   });
 
   return (
-    <div className={`msg ${isOwn ? 'msg--own' : 'msg--other'} ${hasMentionMe ? 'msg--mentioned' : ''}`}>
-      {!isOwn && <span className="msg__sender">{msg.username}</span>}
-      <span className="msg__text">{renderMessageText(msg.message, currentUser)}</span>
-      {time && <span className="msg__time">{time}</span>}
+    <div className={`msg-container ${isOwn ? 'msg-container--own' : 'msg-container--other'}`}>
+      <div className={`msg ${isOwn ? 'msg--own' : 'msg--other'} ${hasMentionMe ? 'msg--mentioned' : ''}`}>
+        {!isOwn && <span className="msg__sender">{msg.username}</span>}
+        {msg.reply_to && (
+          <div className="msg__reply-quote">
+            <span className="msg__reply-quote-sender">@{msg.reply_to.username}</span>
+            <span className="msg__reply-quote-text">{msg.reply_to.message}</span>
+          </div>
+        )}
+        <span className="msg__text">{renderMessageText(msg.message, currentUser)}</span>
+        {time && <span className="msg__time">{time}</span>}
+      </div>
+      <button
+        className="msg-action-btn msg-action-btn--reply"
+        onClick={() => onReply && onReply({ username: msg.username, message: msg.message })}
+        title="Reply to message"
+        aria-label="Reply to message"
+      >
+        ↩
+      </button>
     </div>
   );
 }

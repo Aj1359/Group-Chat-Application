@@ -746,6 +746,142 @@ ul { list-style: none; }
   outline: 1px solid rgba(224, 175, 45, 0.1);
 }
 
+/* ── Message Replies & Quotes ── */
+.msg-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.msg-container--own {
+  flex-direction: row-reverse;
+}
+
+.msg-container--other {
+  flex-direction: row;
+}
+
+.msg-action-btn {
+  opacity: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--clr-surface-2);
+  border: 1px solid var(--clr-border);
+  color: var(--clr-text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity var(--ease), background var(--ease), color var(--ease);
+  flex-shrink: 0;
+}
+
+.msg-container:hover .msg-action-btn {
+  opacity: 1;
+}
+
+.msg-action-btn:hover {
+  background: var(--clr-surface-3);
+  color: var(--clr-accent);
+  border-color: var(--clr-accent);
+}
+
+.msg__reply-quote {
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  border-left: 2px solid var(--clr-accent);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  color: var(--clr-text-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msg--own .msg__reply-quote {
+  background: rgba(255, 255, 255, 0.1);
+  border-left-color: var(--clr-own-border);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.msg__reply-quote-sender {
+  font-weight: 700;
+  color: var(--clr-accent);
+  font-size: 11px;
+}
+
+.msg--own .msg__reply-quote-sender {
+  color: var(--clr-own-text);
+}
+
+.msg__reply-quote-text {
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reply-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--clr-surface-2);
+  border-top: 1px solid var(--clr-border);
+  border-left: 3px solid var(--clr-accent);
+  padding: 8px 20px;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.reply-preview-bar__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.reply-preview-bar__label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--clr-accent);
+}
+
+.reply-preview-bar__text {
+  font-size: 13px;
+  color: var(--clr-text-muted);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reply-preview-bar__close {
+  background: transparent;
+  border: none;
+  color: var(--clr-text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color var(--ease);
+  margin-left: 10px;
+}
+
+.reply-preview-bar__close:hover {
+  color: var(--clr-danger);
+}
+
 /* ═══════════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════════ */
